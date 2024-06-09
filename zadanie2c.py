@@ -37,11 +37,16 @@ def fit_model(u, y, nA, nB, degree):
 def predict_model(u, y, w, nA, nB, degree, recursive=False):
     N = len(y)
     y_pred = np.zeros(N)  
+
     for k in range(max(nA, nB), N):
+        if recursive:
+            y_k = y_pred
+        else:
+            y_k = y
         y_sum = 0
         for i in range(1, nA + 1):
             for d in range(1, degree + 1):
-                y_sum += w[(i - 1) * degree + (d - 1)] * ((y_pred[k - i] if recursive else y[k - i]) ** d)               
+                y_sum += w[(i - 1) * degree + (d - 1)] * ((y_k[k - i]) ** d)               
         u_sum = 0
         for j in range(1, nB + 1):
             for d in range(1, degree + 1):
@@ -85,14 +90,19 @@ def plot_model_results(u, y_true, y_pred, y_recurrent, title1, title2, TYPE):
     plt.legend()
     plt.grid(True)
     plt.show()
-    
+
+import pandas as pd
+
+df = pd.DataFrame(results, columns=['nA','nB','Stopień', 'Błąd Ucz B-Rek', 'Błąd Wer B-Rek', 'Błąd Ucz Rek', 'Błąd Wer Rek'])
+print(df)
+
 for result in results:
-    if result['nA'] == chosen_N and result['degree'] == chosen_degree:
-        print(f"Model results: nA={result['nA']}, nB={result['nB']}, degree={result['degree']}:")
-        print(f"ucz_errs (non-recursive): {round(result['ucz_errs'], 3)}")
-        print(f"wer_errs (non-recursive): {round(result['wer_errs'], 3)}")
-        print(f"ucz_errs (recursive): {round(result['ucz_errs_rec'], 3)}")
-        print(f"wer_errs (recursive): {round(result['wer_errs_rec'], 3)}")
+    if result[0] == chosen_N and result[2] == chosen_degree:
+#         print(f"Model results: nA={result['nA']}, nB={result['nB']}, degree={result['degree']}:")
+#         print(f"ucz_errs (non-recursive): {round(result['ucz_errs'], 3)}")
+#         print(f"wer_errs (non-recursive): {round(result['wer_errs'], 3)}")
+#         print(f"ucz_errs (recursive): {round(result['ucz_errs_rec'], 3)}")
+#         print(f"wer_errs (recursive): {round(result['wer_errs_rec'], 3)}")
         
         w = fit_model(u_ucz, y_ucz, chosen_N, chosen_N, chosen_degree)
         y_ucz_pred = predict_model(u_ucz, y_ucz, w, chosen_N, chosen_N, chosen_degree, recursive=False)
@@ -105,15 +115,15 @@ for result in results:
         
         plot_model_results(u_wer, y_wer, y_wer_pred, y_wer_pred_recurrent, f'Dane weryfikujące - Nierekurencyjny (nA={chosen_N}, stopień={chosen_degree})', f'Dane weryfikujące - Rekurencyjny (nA={chosen_N}, stopień={chosen_degree})', 'test')
 
-print()
-print("Wyniki dla wszystkich modeli:")
-for result in results:
-    print(f"nA={result['nA']}, nB={result['nB']}, degree={result['degree']}:")
-    print(f"ucz_errs (non-recursive): {round(result['ucz_errs'], 3)}")
-    print(f"wer_errs (non-recursive): {round(result['wer_errs'], 3)}")
-    print(f"ucz_errs (recursive): {round(result['ucz_errs_rec'], 3)}")
-    print(f"wer_errs (recursive): {round(result['wer_errs_rec'], 3)}")
-    print()
+# print()
+# print("Wyniki dla wszystkich modeli:")
+# for result in results:
+#     print(f"nA={result['nA']}, nB={result['nB']}, degree={result['degree']}:")
+#     print(f"ucz_errs (non-recursive): {round(result['ucz_errs'], 3)}")
+#     print(f"wer_errs (non-recursive): {round(result['wer_errs'], 3)}")
+#     print(f"ucz_errs (recursive): {round(result['ucz_errs_rec'], 3)}")
+#     print(f"wer_errs (recursive): {round(result['wer_errs_rec'], 3)}")
+#     print()
 
 def static_characteristic(N: int, K: int, recursive: bool):
     u = np.linspace(-1, 1, 2000)
