@@ -32,16 +32,28 @@ plt.tight_layout()
 plt.show()
 
 # b)
+# Obliczenie macierzy M
+M = np.column_stack((np.ones(len(u_ucz)), u_ucz))
 
-# Dopasowanie modelu liniowego metodą najmniejszych kwadratów
-model1 = LinearRegression()
-model1.fit(u_ucz.reshape(-1, 1), y_ucz)
+# Obliczenie macierzy Y
+Y = y_ucz.reshape(-1, 1)
 
-a0, a1 = model1.intercept_, model1.coef_[0]
+# Obliczenie wektorów współczynników W
+MTM_inv = np.linalg.inv(M.T @ M)
+MTY = M.T @ Y
+W = MTM_inv @ MTY
 
-# Wyznaczenie wartości modelu
-y_ucz_pred = model1.predict(u_ucz.reshape(-1, 1))
-y_wer_pred = model1.predict(u_wer.reshape(-1, 1))
+b, a = W.flatten()
+
+print("Współczynnik a:", a)
+print("Współczynnik b:", b)
+
+# Wyznaczenie modelu
+def model(u):
+    return b + a * u
+
+y_ucz_pred = model(u_ucz)
+y_wer_pred = model(u_wer)
 
 # Obliczenie błędów modelu
 ucz_e = np.mean((y_ucz-y_ucz_pred) ** 2)
@@ -70,50 +82,58 @@ plt.legend()
 
 plt.tight_layout()
 plt.show()
-
-# Komentarz do wyników
-print("Model liniowy został dopasowany do danych za pomocą metody najmniejszych kwadratów. "
-      f"Błąd modelu dla zbioru uczącego wynosi {ucz_e:.4f}, natomiast dla zbioru weryfikującego wynosi {wer_e:.4f}. "
-      "Jak widać na wykresach, model dobrze aproksymuje dane uczące, ale może mieć trudności z dokładnym "
-      "dopasowaniem do danych weryfikujących, co sugeruje, że dane mogą mieć pewien stopień nieliniowości "
-      "lub szumu.")
-
 # c)
 
 stopnie = [2, 5, 8, 11, 14]
 ucz_errs = []
 wer_errs = []
 
-plt.figure(figsize=(18, 12))
-
 for i, stopien in enumerate(stopnie):
-    wielom = PolynomialFeatures(stopien)
-    u_ucz_wiel = wielom.fit_transform(u_ucz.reshape(-1, 1))
-    u_wer_wiel = wielom.fit_transform(u_wer.reshape(-1, 1))
 
-    model2 = LinearRegression()
-    model2.fit(u_ucz_wiel, y_ucz)
+    # Obliczenie macierzy M
+    M = np.ones((len(u_ucz), stopien + 1))
+    for i in range(1, stopien + 1):
+        M[:, i] = u_ucz ** i
 
-    y_ucz_pred_wiel = model2.predict(u_ucz_wiel)
-    y_wer_pred_wiel = model2.predict(u_wer_wiel)
+    # Obliczenie macierzy Y
+    Y = y_ucz.reshape(-1, 1)
+
+    # Obliczenie wektorów współczynników W
+    MTM_inv = np.linalg.inv(M.T @ M)
+    MTY = M.T @ Y
+    W = MTM_inv @ MTY
+
+    coefficients = W.flatten()
+    b = coefficients[0]
+    a = coefficients[1:]
+
+    print(f'Obliczone współczynniki: b = {b}, a = {a}')
+
+    # Wyznaczenie modelu
+    def model2(u):
+        result = coefficients[0]
+        for i in range(1, len(coefficients)):
+            result += coefficients[i] * (u ** i)
+        return result
+    
+    y_ucz_pred_wiel = model2(u_ucz)
+    y_wer_pred_wiel = model2(u_wer)
 
     ucz_errs.append(np.mean((y_ucz-y_ucz_pred_wiel) ** 2))
     wer_errs.append(np.mean((y_wer-y_wer_pred_wiel) ** 2))
 
-    plt.subplot(3, 2, i+1)
-    plt.plot(u_ucz, y_ucz, 'b.', label='Dane uczące')
-    plt.plot(u_wer, y_wer, 'r.', label='Dane weryfikujące')
-    u_range = np.linspace(min(u_ucz), max(u_ucz), 500)
-    y_range = model2.predict(wielom.transform(u_range.reshape(-1, 1)))
-    plt.plot(u_range, y_range, 'r-', label=f'Model wielomianowy N={stopien}')
-    plt.title('Zbiór uczący')
-    plt.xlabel('Sygnał wejściowy (u)')
-    plt.xlabel('Sygnał wejściowy (y)')
-    plt.title(f'Wielomian stopnia {stopien}')
+    u_range = np.linspace(min(u_ucz.min(), u_wer.min()), max(u_ucz.max(), u_wer.max()), 500)
+    y_range_pred = model2(u_range)
+    plt.figure(figsize=(10, 4))
+    plt.scatter(u_ucz, y_ucz, color='blue', label='Dane uczące')
+    plt.scatter(u_wer, y_wer, color='green', label='Dane weryfikujące')
+    plt.plot(u_range, y_range_pred, color='red', label=f'Model nieliniowy')
+    plt.title(f'stopien wielomianu={stopien}')
+    plt.xlabel('u')
+    plt.ylabel('y')
     plt.legend()
-
-plt.tight_layout()
-plt.show()
+    plt.grid(True)
+    plt.show()
 
 import pandas as pd
 

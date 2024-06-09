@@ -28,7 +28,7 @@ plt.show()
 
 # b)
 
-def create_regression_matrix(u, y, nA, nB):
+def create_M_matrix(u, y, nA, nB):
     N = len(y)
     M = np.zeros((N, nA + nB))
     
@@ -41,10 +41,12 @@ def create_regression_matrix(u, y, nA, nB):
     return M
 
 def fit_model(u, y, nA, nB):
-    M = create_regression_matrix(u, y, nA, nB)
+    M = create_M_matrix(u, y, nA, nB)
     M = M[max(nA, nB):]
     Y = y[max(nA, nB):]
-    W = np.linalg.lstsq(M, Y, rcond=None)[0]
+    MTM_inv = np.linalg.inv(M.T @ M)
+    MTY = M.T @ Y
+    W = MTM_inv @ MTY
     return W
 
 def predict_model(u, y, W, nA, nB, recursive=False):
@@ -118,9 +120,9 @@ for n in orders:
 # Wyświetlenie wyników
 import pandas as pd
 
-df = pd.DataFrame(results, columns=['Stopien', 'Błąd Ucz B-Rek', 'Błąd Ucz Rek', 'Błąd Wer B-Rek', 'Błąd Wer Rek'])
+df = pd.DataFrame(results, columns=['Rząd', 'Błąd Ucz B-Rek', 'Błąd Ucz Rek', 'Błąd Wer B-Rek', 'Błąd Wer Rek'])
 print(df)
 
 # Wybór najlepszego modelu
 best_model = df.loc[df['Błąd Wer Rek'].idxmin()]
-print(f'Najlepszy Model: Stopnia {best_model["Stopien"]} z błędem na danych weryfikujących z rekurencją: {best_model["Błąd Wer Rek"]}')
+print(f'Najlepszy Model: Stopnia {best_model["Rząd"]} z błędem na danych weryfikujących z rekurencją: {best_model["Błąd Wer Rek"]}')
