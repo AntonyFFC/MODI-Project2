@@ -75,6 +75,36 @@ for nA, nB, degree in model_configs:
     
     results.append((nA, nB, degree, ucz_errs, wer_errs, ucz_errs_rec, wer_errs_rec))
 
+    plt.figure(figsize=(12, 8))
+    plt.suptitle(f'Model stopnia {degree}', fontsize=15)
+
+    plt.subplot(2, 2, 1)
+    plt.plot(y_ucz, label='Prawdziwe')
+    plt.plot(y_ucz_pred, label='Predykcja')
+    plt.title(f'Dane Uczące Brak Rekurencji')
+    plt.legend()
+    
+    plt.subplot(2, 2, 2)
+    plt.plot(y_ucz, label='Prawdziwe')
+    plt.plot(y_wer_pred_recurrent, label='Predykcja')
+    plt.title(f'Dane Uczące Rekurencja')
+    plt.legend()
+    
+    plt.subplot(2, 2, 3)
+    plt.plot(y_wer, label='Prawdziwe')
+    plt.plot(y_wer_pred, label='Predykcja')
+    plt.title(f'Dane Weryfikujące Brak Rekurencji')
+    plt.legend()
+    
+    plt.subplot(2, 2, 4)
+    plt.plot(y_wer, label='Prawdziwe')
+    plt.plot(y_wer_pred_recurrent, label='Predykcja')
+    plt.title(f'Dane Weryfikujące Rekurencja')
+    plt.legend()
+    
+    plt.tight_layout()
+    plt.show()
+
 def plot_model_results(u, y_true, y_pred, y_recurrent, title1, title2, TYPE):
     plt.figure(figsize=(16, 8))
     plt.subplot(2, 1, 1)
@@ -96,24 +126,24 @@ import pandas as pd
 df = pd.DataFrame(results, columns=['nA','nB','Stopień', 'Błąd Ucz B-Rek', 'Błąd Wer B-Rek', 'Błąd Ucz Rek', 'Błąd Wer Rek'])
 print(df)
 
-for result in results:
-    if result[0] == chosen_N and result[2] == chosen_degree:
-#         print(f"Model results: nA={result['nA']}, nB={result['nB']}, degree={result['degree']}:")
-#         print(f"ucz_errs (non-recursive): {round(result['ucz_errs'], 3)}")
-#         print(f"wer_errs (non-recursive): {round(result['wer_errs'], 3)}")
-#         print(f"ucz_errs (recursive): {round(result['ucz_errs_rec'], 3)}")
-#         print(f"wer_errs (recursive): {round(result['wer_errs_rec'], 3)}")
+# for result in results:
+#     if result[0] == chosen_N and result[2] == chosen_degree:
+# #         print(f"Model results: nA={result['nA']}, nB={result['nB']}, degree={result['degree']}:")
+# #         print(f"ucz_errs (non-recursive): {round(result['ucz_errs'], 3)}")
+# #         print(f"wer_errs (non-recursive): {round(result['wer_errs'], 3)}")
+# #         print(f"ucz_errs (recursive): {round(result['ucz_errs_rec'], 3)}")
+# #         print(f"wer_errs (recursive): {round(result['wer_errs_rec'], 3)}")
         
-        w = fit_model(u_ucz, y_ucz, chosen_N, chosen_N, chosen_degree)
-        y_ucz_pred = predict_model(u_ucz, y_ucz, w, chosen_N, chosen_N, chosen_degree, recursive=False)
-        y_ucz_pred_recurrent = predict_model(u_ucz, y_ucz, w, chosen_N, chosen_N, chosen_degree, recursive=True)
+#         w = fit_model(u_ucz, y_ucz, chosen_N, chosen_N, chosen_degree)
+#         y_ucz_pred = predict_model(u_ucz, y_ucz, w, chosen_N, chosen_N, chosen_degree, recursive=False)
+#         y_ucz_pred_recurrent = predict_model(u_ucz, y_ucz, w, chosen_N, chosen_N, chosen_degree, recursive=True)
         
-        plot_model_results(u_ucz, y_ucz, y_ucz_pred, y_ucz_pred_recurrent, f'Dane uczące się - Nierekurencyjny (nA={chosen_N}, stopień={chosen_degree},)', f'Dane uczące się - Rekurencyjny (nA={chosen_N}, stopień={chosen_degree}', 'train')
+#         plot_model_results(u_ucz, y_ucz, y_ucz_pred, y_ucz_pred_recurrent, f'Dane uczące się - Nierekurencyjny (nA={chosen_N}, stopień={chosen_degree},)', f'Dane uczące się - Rekurencyjny (nA={chosen_N}, stopień={chosen_degree}', 'train')
 
-        y_wer_pred = predict_model(u_wer, y_wer, w, chosen_N, chosen_N, chosen_degree, recursive=False)
-        y_wer_pred_recurrent = predict_model(u_wer, y_wer, w, chosen_N, chosen_N, chosen_degree, recursive=True)
+#         y_wer_pred = predict_model(u_wer, y_wer, w, chosen_N, chosen_N, chosen_degree, recursive=False)
+#         y_wer_pred_recurrent = predict_model(u_wer, y_wer, w, chosen_N, chosen_N, chosen_degree, recursive=True)
         
-        plot_model_results(u_wer, y_wer, y_wer_pred, y_wer_pred_recurrent, f'Dane weryfikujące - Nierekurencyjny (nA={chosen_N}, stopień={chosen_degree})', f'Dane weryfikujące - Rekurencyjny (nA={chosen_N}, stopień={chosen_degree})', 'test')
+#         plot_model_results(u_wer, y_wer, y_wer_pred, y_wer_pred_recurrent, f'Dane weryfikujące - Nierekurencyjny (nA={chosen_N}, stopień={chosen_degree})', f'Dane weryfikujące - Rekurencyjny (nA={chosen_N}, stopień={chosen_degree})', 'test')
 
 # print()
 # print("Wyniki dla wszystkich modeli:")
